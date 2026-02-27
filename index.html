@@ -455,12 +455,34 @@
                 <!-- Day Detail Panel -->
                 <div class="glass-card day-detail-card" id="dayDetailCard">
                     <h3 class="card-title" id="dayDetailTitle">Select a day</h3>
-                    <div class="day-meals" id="dayMeals">
-                        <div class="empty-state">
-                            <span class="empty-icon">📅</span>
-                            <p>Click a day on the calendar to view or plan meals</p>
+
+                    <!-- Day's Workout -->
+                    <div class="day-section" id="dayWorkoutSection" style="display:none;">
+                        <h4 class="day-section-title">🏋️ Workout</h4>
+                        <div id="dayWorkoutInfo"></div>
+                    </div>
+
+                    <!-- Day's Meals -->
+                    <div class="day-section">
+                        <h4 class="day-section-title">🍽️ Meals</h4>
+                        <div class="day-meals" id="dayMeals">
+                            <div class="empty-state">
+                                <span class="empty-icon">📅</span>
+                                <p>Click a day on the calendar to view or plan meals</p>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Day's To-Do Tasks -->
+                    <div class="day-section" id="dayTodoSection" style="display:none;">
+                        <h4 class="day-section-title">✅ Tasks</h4>
+                        <div id="dayTodoList"></div>
+                        <div class="day-todo-form">
+                            <input type="text" id="dayTodoInput" class="input" placeholder="Add a task for this day...">
+                            <button class="btn btn-sm btn-accent" id="addDayTodoBtn">+ Add</button>
+                        </div>
+                    </div>
+
                     <div class="day-actions" id="dayActions" style="display:none;">
                         <select id="assignMealSelect" class="input">
                             <option value="">-- Select a saved meal --</option>

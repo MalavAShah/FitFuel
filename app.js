@@ -182,6 +182,7 @@ let state = {
     exerciseFilter: 'all',      // muscle group filter
     exerciseDiffFilter: 'all',  // difficulty filter
     exerciseDate: '',           // track which day the workout is for
+    calendarTodos: {},           // { "2026-02-27": [{ id, text, done }] }
 };
 
 // ==================== INIT ====================
@@ -339,11 +340,13 @@ function resetState() {
     state.customFoods = [];
     state.exercises = [];
     state.exerciseDate = '';
+    state.calendarTodos = {};
 }
 
 let appInitialized = false;
 function initApp() {
     loadState();
+    initTheme();
     if (!appInitialized) {
         initNavigation();
         initDashboard();
@@ -361,6 +364,22 @@ function initApp() {
     renderCalendar();
     renderActiveWorkout();
     updatePresetInfo();
+    restoreProfileUI();
+}
+
+// ==================== THEME TOGGLE ====================
+function initTheme() {
+    const toggle = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('fitfuel_theme');
+    if (saved === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
+    toggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('fitfuel_theme', isLight ? 'light' : 'dark');
+    });
 }
 
 // ==================== LOCAL STORAGE ====================
@@ -380,6 +399,7 @@ function saveState() {
         customFoods: state.customFoods,
         exercises: state.exercises,
         exerciseDate: state.exerciseDate,
+        calendarTodos: state.calendarTodos,
     };
     localStorage.setItem(getStorageKey(), JSON.stringify(toSave));
 }
@@ -398,6 +418,7 @@ function loadState() {
         state.customFoods = data.customFoods || [];
         state.exercises = data.exercises || [];
         state.exerciseDate = data.exerciseDate || '';
+        state.calendarTodos = data.calendarTodos || {};
     }
 
     // Reset water and exercises if it's a new day
@@ -977,6 +998,12 @@ function initCalendar() {
 
     document.getElementById('assignMealBtn').addEventListener('click', assignMealToDay);
 
+    // Calendar day-specific to-do add
+    document.getElementById('addDayTodoBtn').addEventListener('click', addCalendarTodo);
+    document.getElementById('dayTodoInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addCalendarTodo();
+    });
+
     renderCalendar();
 }
 
@@ -1044,16 +1071,35 @@ function renderDayDetail() {
     document.getElementById('dayDetailTitle').textContent = '📅 ' + formatDate(date);
     document.getElementById('dayActions').style.display = 'flex';
 
+    // === WORKOUT SECTION ===
+    const workoutSection = document.getElementById('dayWorkoutSection');
+    const workoutInfo = document.getElementById('dayWorkoutInfo');
+    const dayOfWeek = new Date(date).getDay();
+    const preset = DAILY_WORKOUTS[dayOfWeek];
+
+    workoutSection.style.display = 'block';
+    if (preset) {
+        const exercises = preset.ids.map(id => EXERCISE_DB.find(e => e.id === id)).filter(Boolean);
+        workoutInfo.innerHTML = `
+            <div class="day-workout-name">${preset.name}</div>
+            <div class="day-workout-exercises">
+                ${exercises.map(ex => `
+                    <span class="day-workout-chip">${ex.emoji} ${ex.name}</span>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        workoutInfo.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Rest day 😌</p>';
+    }
+
+    // === MEALS SECTION ===
     const mealIds = state.calendarMeals[date] || [];
     const meals = mealIds.map(id => state.savedMeals.find(m => m.id === id)).filter(Boolean);
     const container = document.getElementById('dayMeals');
 
     if (meals.length === 0) {
         container.innerHTML = `
-            <div class="empty-state">
-                <span class="empty-icon">🍽️</span>
-                <p>No meals planned for this day</p>
-            </div>`;
+            <p style="color:var(--text-muted);font-size:0.85rem;">No meals planned</p>`;
     } else {
         container.innerHTML = meals.map(m => `
             <div class="day-meal-item">
@@ -1081,10 +1127,61 @@ function renderDayDetail() {
         });
     }
 
+    // === CALENDAR TODOS SECTION ===
+    const todoSection = document.getElementById('dayTodoSection');
+    const todoList = document.getElementById('dayTodoList');
+    todoSection.style.display = 'block';
+
+    const todos = state.calendarTodos[date] || [];
+    if (todos.length === 0) {
+        todoList.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No tasks for this day</p>';
+    } else {
+        todoList.innerHTML = todos.map(t => `
+            <div class="day-todo-item ${t.done ? 'done' : ''}">
+                <label class="day-todo-check">
+                    <input type="checkbox" ${t.done ? 'checked' : ''} data-todo-id="${t.id}">
+                    <span>${escapeHtml(t.text)}</span>
+                </label>
+                <button class="day-todo-remove" data-todo-id="${t.id}">×</button>
+            </div>
+        `).join('');
+
+        todoList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const todo = (state.calendarTodos[date] || []).find(t => t.id === cb.dataset.todoId);
+                if (todo) { todo.done = cb.checked; saveState(); renderDayDetail(); }
+            });
+        });
+        todoList.querySelectorAll('.day-todo-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.calendarTodos[date] = (state.calendarTodos[date] || []).filter(t => t.id !== btn.dataset.todoId);
+                if (state.calendarTodos[date].length === 0) delete state.calendarTodos[date];
+                saveState(); renderDayDetail();
+                showToast('Task removed', 'info');
+            });
+        });
+    }
+
     // Populate meal select
     const select = document.getElementById('assignMealSelect');
     select.innerHTML = '<option value="">-- Select a saved meal --</option>' +
         state.savedMeals.map(m => `<option value="${m.id}">${m.name} (${m.totalCal} kcal)</option>`).join('');
+}
+
+function addCalendarTodo() {
+    const date = state.selectedDate;
+    const input = document.getElementById('dayTodoInput');
+    const text = input.value.trim();
+    if (!date) { showToast('Select a day first', 'error'); return; }
+    if (!text) return;
+
+    if (!state.calendarTodos[date]) state.calendarTodos[date] = [];
+    state.calendarTodos[date].push({ id: generateId(), text, done: false });
+    input.value = '';
+    saveState();
+    renderDayDetail();
+    renderCalendar();
+    showToast('Task added! ✅', 'success');
 }
 
 function assignMealToDay() {
