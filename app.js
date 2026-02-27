@@ -1427,13 +1427,24 @@ function initProfile() {
         });
     });
 
-    // Goal toggle
-    document.querySelectorAll('.goal-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.goal-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            state.profile.goal = btn.dataset.goal;
-        });
+    // Auto-recalculate when preference changes
+    document.getElementById('profilePreference').addEventListener('change', () => {
+        state.profile.preference = document.getElementById('profilePreference').value;
+        saveState();
+
+        // If they have basic stats, auto-calculate and apply
+        if (state.profile.age && state.profile.weight && state.profile.height) {
+            calculateBMR();
+            applyTargets();
+        }
+
+        // Also update workout preset tab
+        updatePresetInfo();
+
+        // Reload calendar to refresh workout preset for today
+        renderDayDetail();
+
+        showToast('Goals and workouts updated! 💪', 'success');
     });
 
     // Calculate
@@ -1455,12 +1466,8 @@ function restoreProfileUI() {
         const gBtn = document.querySelector(`.gender-btn[data-gender="${state.profile.gender}"]`);
         if (gBtn) gBtn.classList.add('active');
     }
-    // Goal
-    if (state.profile.goal) {
-        document.querySelectorAll('.goal-btn').forEach(b => b.classList.remove('active'));
-        const goalBtn = document.querySelector(`.goal-btn[data-goal="${state.profile.goal}"]`);
-        if (goalBtn) goalBtn.classList.add('active');
-    }
+    // Goal (no longer a button toggle, now it's profilePreference)
+    if (state.profile.preference) document.getElementById('profilePreference').value = state.profile.preference;
     if (state.profile.age) document.getElementById('profileAge').value = state.profile.age;
     if (state.profile.weight) document.getElementById('profileWeight').value = state.profile.weight;
     if (state.profile.height) document.getElementById('profileHeight').value = state.profile.height;
@@ -1479,7 +1486,7 @@ function calculateBMR() {
     const height = parseFloat(document.getElementById('profileHeight').value);
     const activity = parseFloat(document.getElementById('activityLevel').value);
     const gender = state.profile.gender;
-    const goal = state.profile.goal;
+    const goal = state.profile.preference || 'stay-fit';
 
     if (!age || !weight || !height) {
         showToast('Please fill in all fields', 'error');
@@ -1487,10 +1494,33 @@ function calculateBMR() {
     }
 
     // Save profile
-    state.profile = { gender, age, weight, height, activityLevel: activity, goal };
+    state.profile = { ...state.profile, gender, age, weight, height, activityLevel: activity };
     saveState();
 
-    // Mifflin-St Jeor
+    // === BMI CALCULATION ===
+    const heightM = height / 100;
+    const bmi = (weight / (heightM * heightM)).toFixed(1);
+
+    let bmiRec = '';
+    let recColor = '';
+    if (bmi > 25) {
+        bmiRec = 'Overweight — Recommend: Weight Loss';
+        recColor = 'var(--accent-red)';
+    } else if (bmi < 18.5) {
+        bmiRec = 'Underweight — Recommend: Muscle Gain';
+        recColor = 'var(--accent-yellow)';
+    } else {
+        bmiRec = 'Normal — Recommend: Stay Fit';
+        recColor = 'var(--accent-green)';
+    }
+
+    document.getElementById('resultBMI').textContent = bmi;
+    document.getElementById('resultBMI').style.color = recColor;
+    const recEl = document.getElementById('resultBMIRecommendation');
+    recEl.textContent = bmiRec;
+    recEl.style.color = recColor;
+
+    // === BMR CALCULATION (Mifflin-St Jeor) ===
     let bmr;
     if (gender === 'male') {
         bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
@@ -1501,22 +1531,34 @@ function calculateBMR() {
     const tdee = Math.round(bmr * activity);
     bmr = Math.round(bmr);
 
-    // Goal adjustment
+    // === TARGETS BY GOAL ===
     let targetCal;
-    switch (goal) {
-        case 'cut': targetCal = Math.round(tdee - 500); break;
-        case 'bulk': targetCal = Math.round(tdee + 300); break;
-        default: targetCal = tdee; break;
+    let proteinMultiplier; // g per kg bodyweight
+    let fatPercentage; // % of total calories
+
+    if (goal === 'weight-loss') {
+        targetCal = Math.round(tdee - 500);
+        proteinMultiplier = 2.2; // High protein to preserve muscle
+        fatPercentage = 0.20;    // Lower fat
+    } else if (goal === 'muscle-gain') {
+        targetCal = Math.round(tdee + 300);
+        proteinMultiplier = 1.8; // Moderate-high protein
+        fatPercentage = 0.25;    // Standard fat
+    } else { // stay-fit, general-health, athletic
+        targetCal = tdee;
+        proteinMultiplier = 2.0; // Standard balanced
+        fatPercentage = 0.25;
     }
 
-    // Macro split (common bodybuilding split)
-    // Protein: 2g per kg bodyweight, Fat: 25% of calories, rest Carbs
-    const proteinG = Math.round(weight * 2);
-    const fatCal = Math.round(targetCal * 0.25);
+    // === MACRO SPLIT ===
+    const proteinG = Math.round(weight * proteinMultiplier);
+    const fatCal = Math.round(targetCal * fatPercentage);
     const fatG = Math.round(fatCal / 9);
     const proteinCal = proteinG * 4;
+
+    // Remainder is carbs
     const carbCal = targetCal - proteinCal - fatCal;
-    const carbG = Math.round(carbCal / 4);
+    const carbG = Math.max(0, Math.round(carbCal / 4)); // Ensure carbs don't go negative on extreme cuts
 
     // Display results
     document.getElementById('resultBMR').textContent = bmr;
@@ -1529,7 +1571,7 @@ function calculateBMR() {
     // Store computed targets for apply
     state._computedTargets = { calories: targetCal, protein: proteinG, carbs: carbG, fats: fatG };
 
-    showToast('BMR & TDEE calculated! 📊', 'success');
+    showToast('BMR, BMI & Macros calculated! 📊', 'success');
 }
 
 function applyTargets() {

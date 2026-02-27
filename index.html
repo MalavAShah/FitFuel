@@ -703,56 +703,60 @@
                                 <option value="1.9">Extra Active (twice/day)</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Goal</label>
-                            <div class="goal-toggle">
-                                <button class="goal-btn" data-goal="cut">🔻 Cut</button>
-                                <button class="goal-btn active" data-goal="maintain">⚖️ Maintain</button>
-                                <button class="goal-btn" data-goal="bulk">🔺 Bulk</button>
-                            </div>
-                        </div>
-                        <button class="btn btn-accent btn-block" id="calculateBMR">Calculate</button>
                     </div>
+                    <button class="btn btn-accent btn-block" id="calculateBMR">Calculate</button>
                 </div>
+            </div>
 
-                <!-- Results -->
-                <div class="glass-card results-card">
-                    <h3 class="card-title">🎯 Your Daily Targets</h3>
-                    <div class="results-grid" id="resultsGrid">
-                        <div class="result-item">
-                            <span class="result-label">BMR</span>
-                            <span class="result-value" id="resultBMR">—</span>
-                            <span class="result-unit">kcal/day</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">TDEE</span>
-                            <span class="result-value" id="resultTDEE">—</span>
-                            <span class="result-unit">kcal/day</span>
-                        </div>
-                        <div class="result-item highlight">
-                            <span class="result-label">Target Calories</span>
-                            <span class="result-value" id="resultTarget">—</span>
-                            <span class="result-unit">kcal/day</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Protein</span>
-                            <span class="result-value" id="resultProtein">—</span>
-                            <span class="result-unit">g/day</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Carbs</span>
-                            <span class="result-value" id="resultCarbs">—</span>
-                            <span class="result-unit">g/day</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Fats</span>
-                            <span class="result-value" id="resultFats">—</span>
-                            <span class="result-unit">g/day</span>
+            <!-- Results -->
+            <div class="glass-card results-card">
+                <h3 class="card-title">🎯 Your Daily Targets</h3>
+                <div class="results-grid" id="resultsGrid">
+                    <div class="result-item"
+                        style="grid-column: 1 / -1; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
+                        <span class="result-label">BMI Score</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span class="result-value" id="resultBMI" style="color:var(--accent-cyan);">—</span>
+                            </div>
+                            <div id="resultBMIRecommendation"
+                                style="font-size:0.85rem; color:var(--text-muted); text-align:right;">—</div>
                         </div>
                     </div>
-                    <button class="btn btn-accent btn-block" id="applyTargets" style="margin-top:16px;">Apply as Daily
-                        Targets</button>
+                    <div class="result-item">
+                        <span class="result-label">BMR</span>
+                        <span class="result-value" id="resultBMR">—</span>
+                        <span class="result-unit">kcal/day</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">TDEE</span>
+                        <span class="result-value" id="resultTDEE">—</span>
+                        <span class="result-unit">kcal/day</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="result-label">Target Calories</span>
+                        <span class="result-value" id="resultTarget">—</span>
+                        <span class="result-unit">kcal/day</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Protein</span>
+                        <span class="result-value" id="resultProtein">—</span>
+                        <span class="result-unit">g/day</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Carbs</span>
+                        <span class="result-value" id="resultCarbs">—</span>
+                        <span class="result-unit">g/day</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Fats</span>
+                        <span class="result-value" id="resultFats">—</span>
+                        <span class="result-unit">g/day</span>
+                    </div>
                 </div>
+                <button class="btn btn-accent btn-block" id="applyTargets" style="margin-top:16px;">Apply as Daily
+                    Targets</button>
+            </div>
             </div>
         </section>
 
