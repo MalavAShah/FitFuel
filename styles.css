@@ -2767,3 +2767,13 @@ body.light-theme .water-bottle {
     font-size: 0.85rem;
     padding: 8px 12px;
 }
+
+/* Todo date badge */
+.todo-date {
+    font-size: 0.72rem;
+    color: var(--accent-cyan);
+    background: rgba(0, 212, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    white-space: nowrap;
+}

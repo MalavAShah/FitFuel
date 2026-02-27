@@ -130,18 +130,59 @@ const EXERCISE_DB = [
     { id: 'e40', name: 'Ball Crunch', muscle: 'abs', difficulty: 'intermediate', equipment: 'Exercise Ball', sets: 3, reps: '15-20', emoji: '⚽', description: 'Lying back on exercise ball, crunch up' },
     { id: 'e41', name: 'Mountain Climbers', muscle: 'abs', difficulty: 'advanced', equipment: 'Yoga Mat', sets: 3, reps: '20 each', emoji: '⛰️', description: 'Plank position, drive knees to chest fast' },
     { id: 'e42', name: 'Ball Pike', muscle: 'abs', difficulty: 'advanced', equipment: 'Exercise Ball', sets: 3, reps: '10-12', emoji: '💥', description: 'Feet on ball, pike hips up to ceiling' },
+
+    // === CARDIO ===
+    { id: 'e43', name: 'Jump Rope', muscle: 'cardio', difficulty: 'beginner', equipment: 'Skipping Rope', sets: 3, reps: '60s', emoji: '🪢', description: 'Basic jump rope at steady pace' },
+    { id: 'e44', name: 'Jogging in Place', muscle: 'cardio', difficulty: 'beginner', equipment: 'Bodyweight', sets: 3, reps: '2-3 min', emoji: '🏃', description: 'Jog in place, lift knees moderately' },
+    { id: 'e45', name: 'High Knees', muscle: 'cardio', difficulty: 'intermediate', equipment: 'Bodyweight', sets: 3, reps: '30 each', emoji: '🦵', description: 'Run in place driving knees to chest height' },
+    { id: 'e46', name: 'Burpees', muscle: 'cardio', difficulty: 'advanced', equipment: 'Yoga Mat', sets: 3, reps: '10-12', emoji: '🔥', description: 'Squat, jump back to plank, push-up, jump up' },
+    { id: 'e47', name: 'Jumping Jacks', muscle: 'cardio', difficulty: 'beginner', equipment: 'Bodyweight', sets: 3, reps: '30', emoji: '⭐', description: 'Classic jumping jacks for full-body warmup' },
+    { id: 'e48', name: 'Double-Under Jump Rope', muscle: 'cardio', difficulty: 'advanced', equipment: 'Skipping Rope', sets: 3, reps: '30', emoji: '🪢', description: 'Swing rope twice per jump — explosive' },
 ];
 
-// ==================== DAILY WORKOUT PRESETS ====================
-const DAILY_WORKOUTS = {
-    0: { name: 'Sunday — Abs & Legs (Light)', muscles: ['abs', 'legs'], ids: ['e37', 'e38', 'e40', 'e31', 'e33', 'e39'] },
-    1: { name: 'Monday — Chest & Triceps', muscles: ['chest', 'triceps'], ids: ['e1', 'e3', 'e4', 'e6', 'e7', 'e9', 'e10'] },
-    2: { name: 'Tuesday — Back & Biceps', muscles: ['back', 'biceps'], ids: ['e13', 'e14', 'e15', 'e17', 'e19', 'e20', 'e21'] },
-    3: { name: 'Wednesday — Shoulders & Abs', muscles: ['shoulders', 'abs'], ids: ['e25', 'e26', 'e27', 'e28', 'e37', 'e38', 'e39'] },
-    4: { name: 'Thursday — Legs', muscles: ['legs'], ids: ['e31', 'e32', 'e33', 'e34', 'e35', 'e36'] },
-    5: { name: 'Friday — Upper Body', muscles: ['chest', 'back'], ids: ['e1', 'e5', 'e3', 'e13', 'e16', 'e15', 'e17'] },
-    6: { name: 'Saturday — Arms & Shoulders', muscles: ['biceps', 'triceps', 'shoulders'], ids: ['e19', 'e23', 'e21', 'e8', 'e11', 'e25', 'e29'] },
+// ==================== DAILY WORKOUT PRESETS BY GOAL ====================
+// Muscle Gain — heavier dumbbell work, hypertrophy focus, less cardio
+const WORKOUTS_MUSCLE_GAIN = {
+    0: { name: 'Sunday — Active Recovery', muscles: ['abs', 'cardio'], ids: ['e37', 'e38', 'e44', 'e47'] },
+    1: { name: 'Monday — Chest & Triceps (Heavy)', muscles: ['chest', 'triceps'], ids: ['e3', 'e4', 'e5', 'e6', 'e9', 'e10', 'e11'] },
+    2: { name: 'Tuesday — Back & Biceps (Heavy)', muscles: ['back', 'biceps'], ids: ['e13', 'e15', 'e17', 'e18', 'e19', 'e22', 'e24'] },
+    3: { name: 'Wednesday — Shoulders & Abs', muscles: ['shoulders', 'abs'], ids: ['e25', 'e27', 'e28', 'e30', 'e39', 'e41', 'e42'] },
+    4: { name: 'Thursday — Legs (Heavy)', muscles: ['legs'], ids: ['e32', 'e33', 'e34', 'e35', 'e36', 'e31'] },
+    5: { name: 'Friday — Upper Body Push/Pull', muscles: ['chest', 'back'], ids: ['e1', 'e5', 'e6', 'e13', 'e16', 'e17', 'e18'] },
+    6: { name: 'Saturday — Arms Hypertrophy', muscles: ['biceps', 'triceps'], ids: ['e19', 'e22', 'e23', 'e24', 'e8', 'e10', 'e11', 'e12'] },
 };
+
+// Fat Loss — cardio-heavy, circuits, HIIT-style
+const WORKOUTS_FAT_LOSS = {
+    0: { name: 'Sunday — Rest & Light Stretch', muscles: ['abs'], ids: ['e37', 'e38', 'e44'] },
+    1: { name: 'Monday — HIIT Cardio & Chest', muscles: ['cardio', 'chest'], ids: ['e43', 'e45', 'e46', 'e1', 'e3', 'e4', 'e47'] },
+    2: { name: 'Tuesday — Cardio & Back', muscles: ['cardio', 'back'], ids: ['e43', 'e44', 'e45', 'e13', 'e14', 'e15'] },
+    3: { name: 'Wednesday — Full Body Circuit', muscles: ['cardio', 'legs', 'abs'], ids: ['e46', 'e47', 'e43', 'e31', 'e33', 'e41', 'e37'] },
+    4: { name: 'Thursday — Cardio & Legs', muscles: ['cardio', 'legs'], ids: ['e43', 'e45', 'e48', 'e31', 'e32', 'e34', 'e35'] },
+    5: { name: 'Friday — HIIT & Upper Body', muscles: ['cardio', 'shoulders', 'triceps'], ids: ['e46', 'e47', 'e43', 'e25', 'e26', 'e7', 'e8'] },
+    6: { name: 'Saturday — Cardio Endurance', muscles: ['cardio', 'abs'], ids: ['e43', 'e44', 'e45', 'e47', 'e48', 'e37', 'e39'] },
+};
+
+// Maintaining / Stay Fit — balanced mix
+const WORKOUTS_MAINTAIN = {
+    0: { name: 'Sunday — Abs & Light Cardio', muscles: ['abs', 'cardio'], ids: ['e37', 'e38', 'e40', 'e44', 'e47'] },
+    1: { name: 'Monday — Chest & Triceps', muscles: ['chest', 'triceps'], ids: ['e1', 'e3', 'e4', 'e7', 'e9', 'e43'] },
+    2: { name: 'Tuesday — Back & Biceps', muscles: ['back', 'biceps'], ids: ['e13', 'e14', 'e15', 'e19', 'e20', 'e43'] },
+    3: { name: 'Wednesday — Shoulders & Abs', muscles: ['shoulders', 'abs'], ids: ['e25', 'e26', 'e27', 'e37', 'e38', 'e39', 'e44'] },
+    4: { name: 'Thursday — Legs & Cardio', muscles: ['legs', 'cardio'], ids: ['e31', 'e32', 'e33', 'e34', 'e43', 'e45'] },
+    5: { name: 'Friday — Upper Body Mix', muscles: ['chest', 'back', 'cardio'], ids: ['e1', 'e5', 'e13', 'e16', 'e44', 'e47'] },
+    6: { name: 'Saturday — Arms & Cardio', muscles: ['biceps', 'triceps', 'cardio'], ids: ['e19', 'e21', 'e8', 'e11', 'e43', 'e45'] },
+};
+
+// Helper — returns the right preset based on profile preference
+function getWorkoutForDay(dayOfWeek) {
+    const pref = state.profile.preference || 'stay-fit';
+    let workouts;
+    if (pref === 'muscle-gain') workouts = WORKOUTS_MUSCLE_GAIN;
+    else if (pref === 'weight-loss') workouts = WORKOUTS_FAT_LOSS;
+    else workouts = WORKOUTS_MAINTAIN; // stay-fit, general-health, athletic
+    return workouts[dayOfWeek] || null;
+}
 
 // ==================== STATE ====================
 let currentUser = null; // currently logged-in username
@@ -183,6 +224,7 @@ let state = {
     exerciseDiffFilter: 'all',  // difficulty filter
     exerciseDate: '',           // track which day the workout is for
     calendarTodos: {},           // { "2026-02-27": [{ id, text, done }] }
+    pendingCalendarDate: null,   // when redirected from calendar to calculator
 };
 
 // ==================== INIT ====================
@@ -932,15 +974,21 @@ function saveMeal() {
 
     state.savedMeals.push(meal);
 
-    // Also assign to today
-    if (!state.calendarMeals[today]) state.calendarMeals[today] = [];
-    state.calendarMeals[today].push(meal.id);
+    // Assign to pending calendar date if set, otherwise to today
+    const targetDate = state.pendingCalendarDate || today;
+    if (!state.calendarMeals[targetDate]) state.calendarMeals[targetDate] = [];
+    state.calendarMeals[targetDate].push(meal.id);
 
+    const assignMsg = state.pendingCalendarDate
+        ? `"${name}" saved and assigned to ${formatDate(state.pendingCalendarDate)}! 🎉`
+        : `"${name}" saved and logged for today! 🎉`;
+
+    state.pendingCalendarDate = null;
     state.mealItems = [];
     document.getElementById('mealName').value = 'Meal';
     renderMealBuilder();
     saveState();
-    showToast(`"${name}" saved and logged for today! 🎉`, 'success');
+    showToast(assignMsg, 'success');
 }
 
 function addCustomFood() {
@@ -1075,7 +1123,7 @@ function renderDayDetail() {
     const workoutSection = document.getElementById('dayWorkoutSection');
     const workoutInfo = document.getElementById('dayWorkoutInfo');
     const dayOfWeek = new Date(date).getDay();
-    const preset = DAILY_WORKOUTS[dayOfWeek];
+    const preset = getWorkoutForDay(dayOfWeek);
 
     workoutSection.style.display = 'block';
     if (preset) {
@@ -1132,31 +1180,46 @@ function renderDayDetail() {
     const todoList = document.getElementById('dayTodoList');
     todoSection.style.display = 'block';
 
-    const todos = state.calendarTodos[date] || [];
-    if (todos.length === 0) {
+    // Merge calendar-specific todos with main todos that have this date
+    const calTodos = (state.calendarTodos[date] || []).map(t => ({ ...t, source: 'calendar' }));
+    const mainTodos = state.todos.filter(t => t.dueDate === date).map(t => ({
+        id: t.id, text: t.text, done: t.completed, source: 'main',
+        priority: t.priority
+    }));
+    const allTodos = [...calTodos, ...mainTodos];
+    if (allTodos.length === 0) {
         todoList.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No tasks for this day</p>';
     } else {
-        todoList.innerHTML = todos.map(t => `
+        todoList.innerHTML = allTodos.map(t => `
             <div class="day-todo-item ${t.done ? 'done' : ''}">
                 <label class="day-todo-check">
-                    <input type="checkbox" ${t.done ? 'checked' : ''} data-todo-id="${t.id}">
-                    <span>${escapeHtml(t.text)}</span>
+                    <input type="checkbox" ${t.done ? 'checked' : ''} data-todo-id="${t.id}" data-source="${t.source}">
+                    <span>${escapeHtml(t.text)}${t.priority ? ` <span class="todo-priority priority-${t.priority}" style="font-size:0.7rem;">${t.priority}</span>` : ''}</span>
                 </label>
-                <button class="day-todo-remove" data-todo-id="${t.id}">×</button>
+                <button class="day-todo-remove" data-todo-id="${t.id}" data-source="${t.source}">×</button>
             </div>
         `).join('');
 
         todoList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.addEventListener('change', () => {
-                const todo = (state.calendarTodos[date] || []).find(t => t.id === cb.dataset.todoId);
-                if (todo) { todo.done = cb.checked; saveState(); renderDayDetail(); }
+                if (cb.dataset.source === 'main') {
+                    const todo = state.todos.find(t => t.id === cb.dataset.todoId);
+                    if (todo) { todo.completed = cb.checked; saveState(); renderDayDetail(); renderTodos(); }
+                } else {
+                    const todo = (state.calendarTodos[date] || []).find(t => t.id === cb.dataset.todoId);
+                    if (todo) { todo.done = cb.checked; saveState(); renderDayDetail(); }
+                }
             });
         });
         todoList.querySelectorAll('.day-todo-remove').forEach(btn => {
             btn.addEventListener('click', () => {
-                state.calendarTodos[date] = (state.calendarTodos[date] || []).filter(t => t.id !== btn.dataset.todoId);
-                if (state.calendarTodos[date].length === 0) delete state.calendarTodos[date];
-                saveState(); renderDayDetail();
+                if (btn.dataset.source === 'main') {
+                    state.todos = state.todos.filter(t => t.id !== btn.dataset.todoId);
+                } else {
+                    state.calendarTodos[date] = (state.calendarTodos[date] || []).filter(t => t.id !== btn.dataset.todoId);
+                    if (state.calendarTodos[date].length === 0) delete state.calendarTodos[date];
+                }
+                saveState(); renderDayDetail(); renderTodos();
                 showToast('Task removed', 'info');
             });
         });
@@ -1187,8 +1250,23 @@ function addCalendarTodo() {
 function assignMealToDay() {
     const date = state.selectedDate;
     const mealId = document.getElementById('assignMealSelect').value;
-    if (!date || !mealId) {
-        showToast('Select a day and a meal first', 'error');
+
+    if (!date) {
+        showToast('Select a day first', 'error');
+        return;
+    }
+
+    // If no meal selected, check if there are saved meals
+    if (!mealId) {
+        if (state.savedMeals.length === 0) {
+            // Redirect to calculator with pending date
+            state.pendingCalendarDate = date;
+            const navLink = document.querySelector('.nav-link[data-tab="calculator"]');
+            if (navLink) navLink.click();
+            showToast(`Create a meal — it will be auto-assigned to ${formatDate(date)}`, 'info');
+            return;
+        }
+        showToast('Select a meal from the dropdown', 'error');
         return;
     }
 
@@ -1235,6 +1313,8 @@ function addTodo() {
     if (!text) return;
 
     const priority = document.getElementById('todoPriority').value;
+    const dueDateInput = document.getElementById('todoDueDate');
+    const dueDate = dueDateInput.value || '';
 
     state.todos.unshift({
         id: generateId(),
@@ -1242,12 +1322,14 @@ function addTodo() {
         priority,
         completed: false,
         createdAt: new Date().toISOString(),
+        dueDate: dueDate,
     });
 
     input.value = '';
+    dueDateInput.value = '';
     saveState();
     renderTodos();
-    showToast('Task added!', 'success');
+    showToast(dueDate ? `Task added for ${formatDate(dueDate)}!` : 'Task added!', 'success');
 }
 
 function renderTodos() {
@@ -1276,6 +1358,7 @@ function renderTodos() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
                 </div>
                 <span class="todo-text">${escapeHtml(t.text)}</span>
+                ${t.dueDate ? `<span class="todo-date">📅 ${formatDate(t.dueDate)}</span>` : ''}
                 <span class="todo-priority priority-${t.priority}">${t.priority}</span>
                 <button class="todo-delete" data-todo-id="${t.id}">×</button>
             </div>
@@ -1524,18 +1607,20 @@ function initExercises() {
 
 function updatePresetInfo() {
     const dayOfWeek = new Date().getDay();
-    const preset = DAILY_WORKOUTS[dayOfWeek];
+    const preset = getWorkoutForDay(dayOfWeek);
     if (!preset) return;
 
+    const pref = state.profile.preference || 'stay-fit';
+    const goalLabel = pref === 'muscle-gain' ? '💪 Muscle Gain' : pref === 'weight-loss' ? '🔻 Fat Loss' : '🏃 Balanced';
     document.getElementById('presetTitle').textContent = `📅 ${preset.name}`;
     const muscleNames = preset.muscles.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(' + ');
     const exerciseCount = preset.ids.length;
-    document.getElementById('presetDesc').textContent = `${muscleNames} — ${exerciseCount} exercises targeting your ${muscleNames.toLowerCase()} muscles`;
+    document.getElementById('presetDesc').textContent = `${goalLabel} — ${muscleNames} — ${exerciseCount} exercises`;
 }
 
 function loadPresetWorkout() {
     const dayOfWeek = new Date().getDay();
-    const preset = DAILY_WORKOUTS[dayOfWeek];
+    const preset = getWorkoutForDay(dayOfWeek);
     if (!preset) return;
 
     // Don't duplicate — add only exercises not already in the workout
