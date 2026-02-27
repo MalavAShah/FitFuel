@@ -2,7 +2,6 @@
    FitFuel — Gym Diet Plan Maker
    Application Logic
    ============================================ */
-
 // ==================== FOOD DATABASE ====================
 const FOOD_DB = [
     // Protein
@@ -156,12 +155,14 @@ let state = {
     waterIntake: 0,
     waterDate: '',
     profile: {
+        name: '',
         gender: 'male',
         age: null,
         weight: null,
         height: null,
         activityLevel: 1.55,
         goal: 'maintain',
+        preference: 'stay-fit',
     },
     targets: {
         calories: 2000,
@@ -188,22 +189,22 @@ document.addEventListener('DOMContentLoaded', () => {
     initAuth();
 });
 
+// ==================== FIREBASE INIT ====================
+const firebaseConfig = {
+    apiKey: "AIzaSyCt37_4T_8i-99w0WdhTZ8QaN8dQYv7Bqw",
+    authDomain: "fitfuel-70cb8.firebaseapp.com",
+    projectId: "fitfuel-70cb8",
+    storageBucket: "fitfuel-70cb8.firebasestorage.app",
+    messagingSenderId: "657475050056",
+    appId: "1:657475050056:web:4673beafcd62947b76167d",
+    measurementId: "G-ZFS1NJSFX4"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
 // ==================== AUTHENTICATION ====================
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function getUserRegistry() {
-    return JSON.parse(localStorage.getItem('fitfuel_users') || '{}');
-}
-function saveUserRegistry(registry) {
-    localStorage.setItem('fitfuel_users', JSON.stringify(registry));
-}
-
 function initAuth() {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -222,82 +223,107 @@ function initAuth() {
         document.getElementById('loginCard').style.display = 'block';
     });
 
+    // Email Login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+        const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
-        if (!username || !password) { showToast('Please fill in all fields', 'error'); return; }
+        if (!email || !password) { showToast('Please fill in all fields', 'error'); return; }
 
-        const registry = getUserRegistry();
-        const hashed = await hashPassword(password);
-        if (!registry[username] || registry[username] !== hashed) {
-            showToast('Invalid username or password', 'error');
-            return;
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch (err) {
+            showToast(getFirebaseErrorMsg(err), 'error');
         }
-        loginUser(username);
     });
 
+    // Email Signup
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('signupUsername').value.trim().toLowerCase();
+        const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
         const confirm = document.getElementById('signupConfirm').value;
 
-        if (!username || !password || !confirm) { showToast('Please fill in all fields', 'error'); return; }
-        if (username.length < 3) { showToast('Username must be at least 3 characters', 'error'); return; }
-        if (password.length < 4) { showToast('Password must be at least 4 characters', 'error'); return; }
+        if (!email || !password || !confirm) { showToast('Please fill in all fields', 'error'); return; }
+        if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
         if (password !== confirm) { showToast('Passwords do not match', 'error'); return; }
 
-        const registry = getUserRegistry();
-        if (registry[username]) { showToast('Username already taken', 'error'); return; }
-
-        const hashed = await hashPassword(password);
-        registry[username] = hashed;
-        saveUserRegistry(registry);
-        loginUser(username);
-        showToast('Account created! Welcome to FitFuel! 🎉', 'success');
+        try {
+            await auth.createUserWithEmailAndPassword(email, password);
+            showToast('Account created! Welcome to FitFuel! 🎉', 'success');
+        } catch (err) {
+            showToast(getFirebaseErrorMsg(err), 'error');
+        }
     });
 
+    // Google Sign-In (both buttons do the same thing)
+    document.getElementById('googleLoginBtn').addEventListener('click', googleSignIn);
+    document.getElementById('googleSignupBtn').addEventListener('click', googleSignIn);
+
+    // Logout
     logoutBtn.addEventListener('click', () => {
-        logoutUser();
+        auth.signOut();
     });
 
-    // Check existing session
-    const savedUser = localStorage.getItem('fitfuel_current_user');
-    if (savedUser) {
-        loginUser(savedUser);
-    } else {
-        document.getElementById('authOverlay').classList.add('show');
+    // Firebase auth state listener — this is the single source of truth
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            loginUser(user);
+        } else {
+            logoutCleanup();
+        }
+    });
+}
+
+async function googleSignIn() {
+    try {
+        await auth.signInWithPopup(googleProvider);
+    } catch (err) {
+        if (err.code !== 'auth/popup-closed-by-user') {
+            showToast(getFirebaseErrorMsg(err), 'error');
+        }
     }
 }
 
-function loginUser(username) {
-    currentUser = username;
-    localStorage.setItem('fitfuel_current_user', username);
+function getFirebaseErrorMsg(err) {
+    switch (err.code) {
+        case 'auth/user-not-found': return 'No account found with this email';
+        case 'auth/wrong-password': return 'Incorrect password';
+        case 'auth/invalid-credential': return 'Invalid email or password';
+        case 'auth/email-already-in-use': return 'This email is already registered';
+        case 'auth/weak-password': return 'Password is too weak (min 6 characters)';
+        case 'auth/invalid-email': return 'Please enter a valid email address';
+        case 'auth/too-many-requests': return 'Too many attempts. Please try again later';
+        case 'auth/network-request-failed': return 'Network error. Check your connection';
+        default: return err.message || 'Authentication failed';
+    }
+}
+
+function loginUser(firebaseUser) {
+    currentUser = firebaseUser.uid;
     document.getElementById('authOverlay').classList.remove('show');
 
-    // Update sidebar user badge
-    document.getElementById('userName').textContent = username;
-    document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+    // Display name: use displayName (Google), fallback to email prefix
+    const displayName = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+    document.getElementById('userName').textContent = displayName;
+    document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
 
-    // Initialize app
     initApp();
 }
 
-function logoutUser() {
+function logoutCleanup() {
     currentUser = null;
-    localStorage.removeItem('fitfuel_current_user');
-
-    // Reset state
     resetState();
 
-    // Show auth overlay
     document.getElementById('authOverlay').classList.add('show');
     document.getElementById('loginCard').style.display = 'block';
     document.getElementById('signupCard').style.display = 'none';
-    document.getElementById('loginUsername').value = '';
-    document.getElementById('loginPassword').value = '';
-    showToast('Logged out successfully', 'info');
+
+    // Clear form fields
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    if (loginEmail) loginEmail.value = '';
+    if (loginPassword) loginPassword.value = '';
 }
 
 function resetState() {
@@ -308,7 +334,7 @@ function resetState() {
     state.todos = [];
     state.waterIntake = 0;
     state.waterDate = '';
-    state.profile = { gender: 'male', age: null, weight: null, height: null, activityLevel: 1.55, goal: 'maintain' };
+    state.profile = { name: '', gender: 'male', age: null, weight: null, height: null, activityLevel: 1.55, goal: 'maintain', preference: 'stay-fit' };
     state.targets = { calories: 2000, protein: 150, carbs: 250, fats: 65 };
     state.customFoods = [];
     state.exercises = [];
@@ -417,10 +443,15 @@ function showToast(message, type = 'success') {
 
 function getGreeting() {
     const h = new Date().getHours();
-    if (h < 12) return 'Good Morning ☀️';
-    if (h < 17) return 'Good Afternoon 👋';
-    if (h < 21) return 'Good Evening 🌆';
-    return 'Good Night 🌙';
+    let greeting;
+    if (h < 12) greeting = 'Good Morning ☀️';
+    else if (h < 17) greeting = 'Good Afternoon 👋';
+    else if (h < 21) greeting = 'Good Evening 🌆';
+    else greeting = 'Good Night 🌙';
+
+    const name = state.profile.name;
+    if (name) greeting += `, ${name}`;
+    return greeting;
 }
 
 function getAllFoods() {
@@ -511,6 +542,9 @@ function initDashboard() {
 }
 
 function updateDashboard() {
+    // Update greeting with user name
+    document.getElementById('greetingText').textContent = getGreeting();
+
     const today = getTodayStr();
     const todayMealIds = state.calendarMeals[today] || [];
     const todayMeals = todayMealIds.map(id => state.savedMeals.find(m => m.id === id)).filter(Boolean);
@@ -1185,6 +1219,25 @@ function escapeHtml(str) {
 
 // ==================== PROFILE ====================
 function initProfile() {
+    // Save personal info
+    document.getElementById('saveProfileInfo').addEventListener('click', () => {
+        const name = document.getElementById('profileName').value.trim();
+        const preference = document.getElementById('profilePreference').value;
+        state.profile.name = name;
+        state.profile.preference = preference;
+        saveState();
+
+        // Update sidebar user badge with name if set
+        if (name) {
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Update greeting
+        updateDashboard();
+        showToast('Profile saved! 🎉', 'success');
+    });
+
     // Gender toggle
     document.querySelectorAll('.gender-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1208,11 +1261,21 @@ function initProfile() {
     document.getElementById('applyTargets').addEventListener('click', applyTargets);
 
     // Restore saved profile values
+    restoreProfileUI();
+}
+
+function restoreProfileUI() {
+    // Personal info
+    if (state.profile.name) document.getElementById('profileName').value = state.profile.name;
+    if (state.profile.preference) document.getElementById('profilePreference').value = state.profile.preference;
+
+    // Gender
     if (state.profile.gender) {
         document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
         const gBtn = document.querySelector(`.gender-btn[data-gender="${state.profile.gender}"]`);
         if (gBtn) gBtn.classList.add('active');
     }
+    // Goal
     if (state.profile.goal) {
         document.querySelectorAll('.goal-btn').forEach(b => b.classList.remove('active'));
         const goalBtn = document.querySelector(`.goal-btn[data-goal="${state.profile.goal}"]`);
@@ -1222,6 +1285,12 @@ function initProfile() {
     if (state.profile.weight) document.getElementById('profileWeight').value = state.profile.weight;
     if (state.profile.height) document.getElementById('profileHeight').value = state.profile.height;
     if (state.profile.activityLevel) document.getElementById('activityLevel').value = state.profile.activityLevel;
+
+    // Also update sidebar name if profile name exists
+    if (state.profile.name) {
+        document.getElementById('userName').textContent = state.profile.name;
+        document.getElementById('userAvatar').textContent = state.profile.name.charAt(0).toUpperCase();
+    }
 }
 
 function calculateBMR() {

@@ -1880,6 +1880,58 @@ body {
     color: var(--accent-cyan);
 }
 
+/* Google Sign-In Button */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-google:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn-google svg {
+    flex-shrink: 0;
+}
+
+/* Auth Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.auth-divider span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 /* Sidebar User Badge */
 .sidebar-user {
     display: flex;

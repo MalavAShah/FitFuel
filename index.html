@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -28,8 +27,8 @@
             </div>
             <form class="auth-form" id="loginForm" autocomplete="off">
                 <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="loginUsername" class="input" placeholder="Enter your username" required>
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" class="input" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
@@ -37,6 +36,24 @@
                 </div>
                 <button type="submit" class="btn btn-accent btn-block">🔓 Login</button>
             </form>
+            <div class="auth-divider"><span>or</span></div>
+            <button class="btn-google" id="googleLoginBtn">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                        fill="#4285F4" />
+                    <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853" />
+                    <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        fill="#FBBC05" />
+                    <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        fill="#EA4335" />
+                </svg>
+                Continue with Google
+            </button>
             <div class="auth-switch">
                 <span>Don't have an account?</span>
                 <a href="#" id="showSignup">Create one</a>
@@ -52,19 +69,39 @@
             </div>
             <form class="auth-form" id="signupForm" autocomplete="off">
                 <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="signupUsername" class="input" placeholder="Choose a username" required minlength="3">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" class="input" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="signupPassword" class="input" placeholder="Create a password" required minlength="4">
+                    <input type="password" id="signupPassword" class="input"
+                        placeholder="Create a password (min 6 chars)" required minlength="6">
                 </div>
                 <div class="form-group">
                     <label>Confirm Password</label>
-                    <input type="password" id="signupConfirm" class="input" placeholder="Confirm your password" required>
+                    <input type="password" id="signupConfirm" class="input" placeholder="Confirm your password"
+                        required>
                 </div>
                 <button type="submit" class="btn btn-accent btn-block">✨ Create Account</button>
             </form>
+            <div class="auth-divider"><span>or</span></div>
+            <button class="btn-google" id="googleSignupBtn">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                        fill="#4285F4" />
+                    <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853" />
+                    <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        fill="#FBBC05" />
+                    <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        fill="#EA4335" />
+                </svg>
+                Continue with Google
+            </button>
             <div class="auth-switch">
                 <span>Already have an account?</span>
                 <a href="#" id="showLogin">Login here</a>
@@ -578,6 +615,32 @@
             </div>
 
             <div class="profile-layout">
+                <!-- Personal Info -->
+                <div class="glass-card profile-card" style="grid-column: 1 / -1;">
+                    <h3 class="card-title">👤 Personal Information</h3>
+                    <p class="card-desc">Tell us about yourself — this info personalizes your experience</p>
+                    <div class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Your Name</label>
+                                <input type="text" id="profileName" class="input" placeholder="What should we call you?"
+                                    maxlength="30">
+                            </div>
+                            <div class="form-group">
+                                <label>Fitness Goal</label>
+                                <select id="profilePreference" class="input input-select">
+                                    <option value="weight-loss">🔻 Weight Loss</option>
+                                    <option value="muscle-gain">💪 Muscle Gain</option>
+                                    <option value="stay-fit" selected>🏃 Stay Fit</option>
+                                    <option value="general-health">❤️ General Health</option>
+                                    <option value="athletic">🏆 Athletic Performance</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" id="saveProfileInfo">💾 Save Profile</button>
+                    </div>
+                </div>
+
                 <!-- BMR Calculator -->
                 <div class="glass-card profile-card">
                     <h3 class="card-title">📊 BMR & TDEE Calculator</h3>
@@ -703,6 +766,9 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Firebase SDK (compat for non-bundler usage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="app.js"></script>
 </body>
 
