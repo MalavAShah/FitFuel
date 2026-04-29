@@ -234,6 +234,7 @@ let state = {
     mealItems: [],         // Current meal builder items
     savedMeals: [],        // All saved meals
     calendarMeals: {},     // { "2026-02-26": [ mealId, ... ] }
+    calendarWorkouts: {},  // { "2026-02-26": "done" | "missed" }
     todos: [],             // { id, text, priority, completed, createdAt }
     waterIntake: 0,
     waterDate: '',
@@ -416,6 +417,7 @@ function resetState() {
     state.mealItems = [];
     state.savedMeals = [];
     state.calendarMeals = {};
+    state.calendarWorkouts = {};
     state.todos = [];
     state.waterIntake = 0;
     state.waterDate = '';
@@ -475,6 +477,7 @@ function saveState() {
     const toSave = {
         savedMeals: state.savedMeals,
         calendarMeals: state.calendarMeals,
+        calendarWorkouts: state.calendarWorkouts,
         todos: state.todos,
         waterIntake: state.waterIntake,
         waterDate: state.waterDate,
@@ -494,6 +497,7 @@ function loadState() {
         const data = JSON.parse(saved);
         state.savedMeals = data.savedMeals || [];
         state.calendarMeals = data.calendarMeals || {};
+        state.calendarWorkouts = data.calendarWorkouts || {};
         state.todos = data.todos || [];
         state.waterIntake = data.waterIntake || 0;
         state.waterDate = data.waterDate || '';
@@ -1088,6 +1092,39 @@ function initCalendar() {
 
     document.getElementById('assignMealBtn').addEventListener('click', assignMealToDay);
 
+    document.getElementById('createNewMealBtn').addEventListener('click', () => {
+        const date = state.selectedDate;
+        if (!date) return;
+        state.pendingCalendarDate = date;
+        const navLink = document.querySelector('.nav-link[data-tab="calculator"]');
+        if (navLink) navLink.click();
+        showToast(`Create a meal — it will be auto-assigned to ${formatDate(date)}`, 'info');
+    });
+
+    document.getElementById('markWorkoutDoneBtn').addEventListener('click', () => {
+        if (!state.selectedDate) return;
+        state.calendarWorkouts[state.selectedDate] = 'done';
+        saveState();
+        renderCalendar();
+        renderDayDetail();
+    });
+
+    document.getElementById('markWorkoutMissedBtn').addEventListener('click', () => {
+        if (!state.selectedDate) return;
+        state.calendarWorkouts[state.selectedDate] = 'missed';
+        saveState();
+        renderCalendar();
+        renderDayDetail();
+    });
+
+    document.getElementById('clearWorkoutStatusBtn').addEventListener('click', () => {
+        if (!state.selectedDate) return;
+        delete state.calendarWorkouts[state.selectedDate];
+        saveState();
+        renderCalendar();
+        renderDayDetail();
+    });
+
     // Calendar day-specific to-do add
     document.getElementById('addDayTodoBtn').addEventListener('click', addCalendarTodo);
     document.getElementById('dayTodoInput').addEventListener('keydown', (e) => {
@@ -1129,6 +1166,8 @@ function renderCalendar() {
         if (isToday) classes += ' today';
         if (isSelected) classes += ' selected';
         if (hasMeals) classes += ' has-meals';
+        if (state.calendarWorkouts[dateStr] === 'done') classes += ' workout-done';
+        else if (state.calendarWorkouts[dateStr] === 'missed') classes += ' workout-missed';
 
         html += `<div class="${classes}" data-date="${dateStr}">${d}</div>`;
     }
@@ -1180,6 +1219,25 @@ function renderDayDetail() {
         `;
     } else {
         workoutInfo.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Rest day 😌</p>';
+    }
+
+    const wStatus = state.calendarWorkouts[date];
+    const btnDone = document.getElementById('markWorkoutDoneBtn');
+    const btnMissed = document.getElementById('markWorkoutMissedBtn');
+    const btnClear = document.getElementById('clearWorkoutStatusBtn');
+    
+    if (wStatus === 'done') {
+        btnDone.style.background = 'rgba(0, 255, 136, 0.15)';
+        btnMissed.style.background = 'transparent';
+        btnClear.style.display = 'block';
+    } else if (wStatus === 'missed') {
+        btnMissed.style.background = 'rgba(255, 71, 87, 0.15)';
+        btnDone.style.background = 'transparent';
+        btnClear.style.display = 'block';
+    } else {
+        btnDone.style.background = 'transparent';
+        btnMissed.style.background = 'transparent';
+        btnClear.style.display = 'none';
     }
 
     // === MEALS SECTION ===

@@ -459,13 +459,23 @@
 
                     <!-- Day's Workout -->
                     <div class="day-section" id="dayWorkoutSection" style="display:none;">
-                        <h4 class="day-section-title">🏋️ Workout</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h4 class="day-section-title">🏋️ Workout</h4>
+                        </div>
                         <div id="dayWorkoutInfo"></div>
+                        <div class="workout-status-actions" id="workoutStatusActions" style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button class="btn btn-sm btn-ghost" id="markWorkoutDoneBtn" style="color: var(--accent-green); border-color: var(--accent-green);">✅ Done</button>
+                            <button class="btn btn-sm btn-ghost" id="markWorkoutMissedBtn" style="color: var(--accent-red); border-color: var(--accent-red);">❌ Missed</button>
+                            <button class="btn btn-sm btn-ghost" id="clearWorkoutStatusBtn" style="display: none;">Clear</button>
+                        </div>
                     </div>
 
                     <!-- Day's Meals -->
                     <div class="day-section">
-                        <h4 class="day-section-title">🍽️ Meals</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                            <h4 class="day-section-title" style="margin-bottom: 0;">🍽️ Meals</h4>
+                            <button class="btn btn-sm btn-ghost" id="createNewMealBtn" style="padding: 4px 8px; font-size: 0.8rem;">+ New Meal</button>
+                        </div>
                         <div class="day-meals" id="dayMeals">
                             <div class="empty-state">
                                 <span class="empty-icon">📅</span>
