@@ -9,6 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="FitFuel" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -463,18 +469,24 @@
                             <h4 class="day-section-title">🏋️ Workout</h4>
                         </div>
                         <div id="dayWorkoutInfo"></div>
-                        <div class="workout-status-actions" id="workoutStatusActions" style="margin-top: 10px; display: flex; gap: 8px;">
-                            <button class="btn btn-sm btn-ghost" id="markWorkoutDoneBtn" style="color: var(--accent-green); border-color: var(--accent-green);">✅ Done</button>
-                            <button class="btn btn-sm btn-ghost" id="markWorkoutMissedBtn" style="color: var(--accent-red); border-color: var(--accent-red);">❌ Missed</button>
-                            <button class="btn btn-sm btn-ghost" id="clearWorkoutStatusBtn" style="display: none;">Clear</button>
+                        <div class="workout-status-actions" id="workoutStatusActions"
+                            style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button class="btn btn-sm btn-ghost" id="markWorkoutDoneBtn"
+                                style="color: var(--accent-green); border-color: var(--accent-green);">✅ Done</button>
+                            <button class="btn btn-sm btn-ghost" id="markWorkoutMissedBtn"
+                                style="color: var(--accent-red); border-color: var(--accent-red);">❌ Missed</button>
+                            <button class="btn btn-sm btn-ghost" id="clearWorkoutStatusBtn"
+                                style="display: none;">Clear</button>
                         </div>
                     </div>
 
                     <!-- Day's Meals -->
                     <div class="day-section">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
                             <h4 class="day-section-title" style="margin-bottom: 0;">🍽️ Meals</h4>
-                            <button class="btn btn-sm btn-ghost" id="createNewMealBtn" style="padding: 4px 8px; font-size: 0.8rem;">+ New Meal</button>
+                            <button class="btn btn-sm btn-ghost" id="createNewMealBtn"
+                                style="padding: 4px 8px; font-size: 0.8rem;">+ New Meal</button>
                         </div>
                         <div class="day-meals" id="dayMeals">
                             <div class="empty-state">
