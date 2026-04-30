@@ -191,6 +191,28 @@
                     <span>Profile</span>
                 </a>
             </li>
+            
+            <!-- ADMIN LINKS -->
+            <li class="admin-only" style="display:none;">
+                <div style="padding: 10px 15px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-top: 10px; letter-spacing: 1px;">Host Admin</div>
+            </li>
+            <li class="admin-only" style="display:none;">
+                <a href="#admin-foods" class="nav-link" data-tab="admin-foods">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    <span>Manage Foods</span>
+                </a>
+            </li>
+            <li class="admin-only" style="display:none;">
+                <a href="#admin-exercises" class="nav-link" data-tab="admin-exercises">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 8v8M8 12h8"/>
+                    </svg>
+                    <span>Manage Exercises</span>
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer">
@@ -780,6 +802,101 @@
                 <button class="btn btn-accent btn-block" id="applyTargets" style="margin-top:16px;">Apply as Daily
                     Targets</button>
             </div>
+            </div>
+        </section>
+
+        <!-- ==================== ADMIN FOODS ==================== -->
+        <section class="tab-content" id="tab-admin-foods">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Manage Foods</h1>
+                    <p class="page-subtitle">Add, edit, or delete items in the global food database</p>
+                </div>
+            </div>
+            
+            <div class="admin-layout">
+                <div class="glass-card">
+                    <h3 class="card-title">Add New Food</h3>
+                    <div class="admin-form">
+                        <input type="text" id="adminFoodName" class="input" placeholder="Food Name">
+                        <input type="text" id="adminFoodEmoji" class="input" placeholder="Emoji (e.g. 🍎)">
+                        <select id="adminFoodCategory" class="input input-select">
+                            <option value="protein">Protein</option>
+                            <option value="carbs">Carbs</option>
+                            <option value="fats">Fats</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="supplements">Supplements</option>
+                            <option value="indian">Indian Foods</option>
+                        </select>
+                        <input type="number" id="adminFoodCal" class="input" placeholder="Calories per 100g">
+                        <input type="number" id="adminFoodProt" class="input" placeholder="Protein per 100g">
+                        <input type="number" id="adminFoodCarb" class="input" placeholder="Carbs per 100g">
+                        <input type="number" id="adminFoodFat" class="input" placeholder="Fat per 100g">
+                        <button class="btn btn-accent" id="adminAddFoodBtn">Add Food</button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="display: flex; flex-direction: column; max-height: 70vh;">
+                    <h3 class="card-title">Food Database</h3>
+                    <div class="search-box mb-4" style="margin-bottom: 1rem;">
+                         <input type="text" id="adminFoodSearch" class="input" placeholder="Search foods...">
+                    </div>
+                    <div class="admin-list" id="adminFoodList" style="overflow-y: auto; flex: 1;">
+                        <!-- Foods rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ADMIN EXERCISES ==================== -->
+        <section class="tab-content" id="tab-admin-exercises">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Manage Exercises</h1>
+                    <p class="page-subtitle">Add, edit, or delete items in the global exercise database</p>
+                </div>
+            </div>
+            
+            <div class="admin-layout">
+                <div class="glass-card">
+                    <h3 class="card-title">Add New Exercise</h3>
+                    <div class="admin-form">
+                        <input type="text" id="adminExName" class="input" placeholder="Exercise Name">
+                        <input type="text" id="adminExEmoji" class="input" placeholder="Emoji (e.g. 🏋️)">
+                        <select id="adminExMuscle" class="input input-select">
+                            <option value="chest">Chest</option>
+                            <option value="triceps">Triceps</option>
+                            <option value="back">Back</option>
+                            <option value="biceps">Biceps</option>
+                            <option value="shoulders">Shoulders</option>
+                            <option value="legs">Legs</option>
+                            <option value="abs">Abs</option>
+                            <option value="cardio">Cardio</option>
+                        </select>
+                        <select id="adminExDiff" class="input input-select">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                        <input type="text" id="adminExEquip" class="input" placeholder="Equipment (e.g. Dumbbells)">
+                        <input type="number" id="adminExSets" class="input" placeholder="Default Sets (e.g. 3)">
+                        <input type="text" id="adminExReps" class="input" placeholder="Default Reps (e.g. 10-12)">
+                        <input type="text" id="adminExDesc" class="input" placeholder="Short description">
+                        <button class="btn btn-accent" id="adminAddExBtn">Add Exercise</button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="display: flex; flex-direction: column; max-height: 70vh;">
+                    <h3 class="card-title">Exercise Database</h3>
+                    <div class="search-box mb-4" style="margin-bottom: 1rem;">
+                         <input type="text" id="adminExSearch" class="input" placeholder="Search exercises...">
+                    </div>
+                    <div class="admin-list" id="adminExList" style="overflow-y: auto; flex: 1;">
+                        <!-- Exercises rendered here -->
+                    </div>
+                </div>
             </div>
         </section>
 

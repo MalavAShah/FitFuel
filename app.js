@@ -3,7 +3,7 @@
    Application Logic
    ============================================ */
 // ==================== FOOD DATABASE ====================
-const FOOD_DB = [
+const DEFAULT_FOOD_DB = [
     // Protein
     { id: 1, name: "Chicken Breast", category: "protein", emoji: "🍗", cal: 165, protein: 31, carbs: 0, fat: 3.6 },
     { id: 2, name: "Eggs (whole)", category: "protein", emoji: "🥚", cal: 155, protein: 13, carbs: 1.1, fat: 11 },
@@ -116,7 +116,7 @@ const FOOD_DB = [
 ];
 
 // ==================== EXERCISE DATABASE ====================
-const EXERCISE_DB = [
+const DEFAULT_EXERCISE_DB = [
     // === CHEST ===
     { id: 'e1', name: 'Push-Ups', muscle: 'chest', difficulty: 'beginner', equipment: 'Bodyweight', sets: 3, reps: '12-15', emoji: '🧑‍💻', description: 'Standard push-ups on yoga mat' },
     { id: 'e2', name: 'Wide Push-Ups', muscle: 'chest', difficulty: 'beginner', equipment: 'Yoga Mat', sets: 3, reps: '10-12', emoji: '💪', description: 'Wider hand placement to target outer chest' },
@@ -183,6 +183,9 @@ const EXERCISE_DB = [
 ];
 
 // ==================== DAILY WORKOUT PRESETS BY GOAL ====================
+let FOOD_DB = JSON.parse(localStorage.getItem('fitfuel_global_foods')) || [...DEFAULT_FOOD_DB];
+let EXERCISE_DB = JSON.parse(localStorage.getItem('fitfuel_global_exercises')) || [...DEFAULT_EXERCISE_DB];
+
 // Muscle Gain — heavier dumbbell work, hypertrophy focus, less cardio
 const WORKOUTS_MUSCLE_GAIN = {
     0: { name: 'Sunday — Active Recovery', muscles: ['abs', 'cardio'], ids: ['e37', 'e38', 'e44', 'e47'] },
@@ -228,6 +231,7 @@ function getWorkoutForDay(dayOfWeek) {
 
 // ==================== STATE ====================
 let currentUser = null; // currently logged-in username
+let isAdmin = false; // whether the logged-in user is an admin
 
 let state = {
     currentTab: 'dashboard',
@@ -389,6 +393,13 @@ function loginUser(firebaseUser) {
     currentUser = firebaseUser.uid;
     document.getElementById('authOverlay').classList.remove('show');
 
+    // Admin Check
+    if (firebaseUser.email && firebaseUser.email.toLowerCase() === 'admin@fitfuel.com') {
+        isAdmin = true;
+    } else {
+        isAdmin = false;
+    }
+
     // Display name: use displayName (Google), fallback to email prefix
     const displayName = firebaseUser.displayName || firebaseUser.email.split('@')[0];
     document.getElementById('userName').textContent = displayName;
@@ -399,6 +410,7 @@ function loginUser(firebaseUser) {
 
 function logoutCleanup() {
     currentUser = null;
+    isAdmin = false;
     resetState();
 
     document.getElementById('authOverlay').classList.add('show');
@@ -441,7 +453,19 @@ function initApp() {
         initTodos();
         initExercises();
         initProfile();
+        initAdmin(); // Initialize admin functionality
         appInitialized = true;
+    }
+
+    // Toggle admin UI elements
+    const adminLinks = document.querySelectorAll('.admin-only');
+    adminLinks.forEach(link => {
+        link.style.display = isAdmin ? 'block' : 'none';
+    });
+
+    if (isAdmin && state.currentTab === 'dashboard') {
+        // Optionally auto-redirect to admin foods if they are admin and just logged in
+        // but we'll leave them on dashboard as requested: "admin should also have access to the regular user tabs"
     }
     updateDashboard();
     renderTodos();
@@ -451,6 +475,11 @@ function initApp() {
     renderActiveWorkout();
     updatePresetInfo();
     restoreProfileUI();
+    
+    if (isAdmin) {
+        renderAdminFoods();
+        renderAdminExercises();
+    }
 }
 
 // ==================== THEME TOGGLE ====================
@@ -1225,7 +1254,7 @@ function renderDayDetail() {
     const btnDone = document.getElementById('markWorkoutDoneBtn');
     const btnMissed = document.getElementById('markWorkoutMissedBtn');
     const btnClear = document.getElementById('clearWorkoutStatusBtn');
-    
+
     if (wStatus === 'done') {
         btnDone.style.background = 'rgba(0, 255, 136, 0.15)';
         btnMissed.style.background = 'transparent';
@@ -1929,3 +1958,178 @@ function updateExerciseStats() {
     const total = state.exercises.length;
     document.getElementById('workoutCount').textContent = `${completed} / ${total} exercises`;
 }
+
+// ==================== ADMIN LOGIC ====================
+function initAdmin() {
+    // --- FOOD ADMIN ---
+    const addFoodBtn = document.getElementById('adminAddFoodBtn');
+    const foodSearch = document.getElementById('adminFoodSearch');
+
+    addFoodBtn.addEventListener('click', () => {
+        const name = document.getElementById('adminFoodName').value.trim();
+        const emoji = document.getElementById('adminFoodEmoji').value.trim() || '🍎';
+        const category = document.getElementById('adminFoodCategory').value;
+        const cal = parseFloat(document.getElementById('adminFoodCal').value);
+        const prot = parseFloat(document.getElementById('adminFoodProt').value);
+        const carb = parseFloat(document.getElementById('adminFoodCarb').value);
+        const fat = parseFloat(document.getElementById('adminFoodFat').value);
+
+        if (!name || isNaN(cal) || isNaN(prot) || isNaN(carb) || isNaN(fat)) {
+            showToast('Please fill all food details correctly', 'error');
+            return;
+        }
+
+        const newFood = {
+            id: Date.now(), // unique ID
+            name,
+            emoji,
+            category,
+            cal,
+            protein: prot,
+            carbs: carb,
+            fat
+        };
+
+        FOOD_DB.push(newFood);
+        localStorage.setItem('fitfuel_global_foods', JSON.stringify(FOOD_DB));
+        showToast('Food added to global database!', 'success');
+        
+        // Clear inputs
+        document.getElementById('adminFoodName').value = '';
+        document.getElementById('adminFoodEmoji').value = '';
+        document.getElementById('adminFoodCal').value = '';
+        document.getElementById('adminFoodProt').value = '';
+        document.getElementById('adminFoodCarb').value = '';
+        document.getElementById('adminFoodFat').value = '';
+
+        renderAdminFoods();
+        renderFoodGrid(); // update client view
+    });
+
+    foodSearch.addEventListener('input', renderAdminFoods);
+
+    // --- EXERCISE ADMIN ---
+    const addExBtn = document.getElementById('adminAddExBtn');
+    const exSearch = document.getElementById('adminExSearch');
+
+    addExBtn.addEventListener('click', () => {
+        const name = document.getElementById('adminExName').value.trim();
+        const emoji = document.getElementById('adminExEmoji').value.trim() || '🏋️';
+        const muscle = document.getElementById('adminExMuscle').value;
+        const difficulty = document.getElementById('adminExDiff').value;
+        const equipment = document.getElementById('adminExEquip').value.trim() || 'Bodyweight';
+        const sets = parseInt(document.getElementById('adminExSets').value) || 3;
+        const reps = document.getElementById('adminExReps').value.trim() || '10-12';
+        const description = document.getElementById('adminExDesc').value.trim();
+
+        if (!name) {
+            showToast('Please enter an exercise name', 'error');
+            return;
+        }
+
+        const newEx = {
+            id: 'e_custom_' + Date.now(),
+            name,
+            emoji,
+            muscle,
+            difficulty,
+            equipment,
+            sets,
+            reps,
+            description
+        };
+
+        EXERCISE_DB.push(newEx);
+        localStorage.setItem('fitfuel_global_exercises', JSON.stringify(EXERCISE_DB));
+        showToast('Exercise added to global database!', 'success');
+
+        // Clear inputs
+        document.getElementById('adminExName').value = '';
+        document.getElementById('adminExEmoji').value = '';
+        document.getElementById('adminExEquip').value = '';
+        document.getElementById('adminExSets').value = '';
+        document.getElementById('adminExReps').value = '';
+        document.getElementById('adminExDesc').value = '';
+
+        renderAdminExercises();
+        if (state.exerciseMode === 'custom') renderExerciseLibrary();
+    });
+
+    exSearch.addEventListener('input', renderAdminExercises);
+
+    // Initial render
+    renderAdminFoods();
+    renderAdminExercises();
+}
+
+function renderAdminFoods() {
+    const list = document.getElementById('adminFoodList');
+    if (!list) return;
+    const searchInput = document.getElementById('adminFoodSearch');
+    const query = searchInput ? searchInput.value.toLowerCase() : '';
+
+    const filtered = FOOD_DB.filter(f => f.name.toLowerCase().includes(query));
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No foods found.</p></div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(f => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <span class="admin-item-title">${f.emoji} ${f.name}</span>
+                <span class="admin-item-meta">${f.category.toUpperCase()} | ${f.cal} kcal | ${f.protein}g P | ${f.carbs}g C | ${f.fat}g F</span>
+            </div>
+            <div class="admin-item-actions">
+                <button class="btn btn-sm btn-danger" onclick="deleteAdminFood(${f.id})">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.deleteAdminFood = function(id) {
+    if (confirm('Are you sure you want to delete this food?')) {
+        FOOD_DB = FOOD_DB.filter(f => f.id !== id);
+        localStorage.setItem('fitfuel_global_foods', JSON.stringify(FOOD_DB));
+        renderAdminFoods();
+        renderFoodGrid();
+        showToast('Food deleted', 'info');
+    }
+};
+
+function renderAdminExercises() {
+    const list = document.getElementById('adminExList');
+    if (!list) return;
+    const searchInput = document.getElementById('adminExSearch');
+    const query = searchInput ? searchInput.value.toLowerCase() : '';
+
+    const filtered = EXERCISE_DB.filter(e => e.name.toLowerCase().includes(query));
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No exercises found.</p></div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(e => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <span class="admin-item-title">${e.emoji} ${e.name}</span>
+                <span class="admin-item-meta">${e.muscle.toUpperCase()} | ${e.difficulty} | ${e.equipment}</span>
+            </div>
+            <div class="admin-item-actions">
+                <button class="btn btn-sm btn-danger" onclick="deleteAdminExercise('${e.id}')">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.deleteAdminExercise = function(id) {
+    if (confirm('Are you sure you want to delete this exercise?')) {
+        EXERCISE_DB = EXERCISE_DB.filter(e => e.id !== id);
+        localStorage.setItem('fitfuel_global_exercises', JSON.stringify(EXERCISE_DB));
+        renderAdminExercises();
+        if (state.exerciseMode === 'custom') renderExerciseLibrary();
+        showToast('Exercise deleted', 'info');
+    }
+};
